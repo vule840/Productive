@@ -12,10 +12,13 @@ const todoSlice = createSlice({
     postTime: (state, action) => {
       state.comments = action.payload;
     },
+    deleteTime: (state, action) => {
+      state.comments = action.payload;
+    },
   },
 });
 
-export const fetchData = () => {
+export const getData = () => {
   return async (dispatch) => {
     const fetchOrganizationMembers = async () => {
       const resp = await fetch(
@@ -121,7 +124,7 @@ export const fetchData = () => {
       const getServices = await fetchServices();
       console.log(getServices);
       // const allResults = await Promise.all([fsociety, ecorp]);
-      dispatch(todoActions.addComments(fetchOrganizationMembers));
+      dispatch(todoActions.addComments(getTimeEntries));
     } catch (error) {
       //console.log("Some error");
     }
@@ -153,6 +156,36 @@ export const postTimeEntry = (comment) => {
     try {
       const getResponseTimeEntry = await postTimeEntryConstruction();
       dispatch(todoActions.postTime(getResponseTimeEntry));
+    } catch (error) {
+      console.log("Some error");
+    }
+  };
+};
+
+export const deleteTimeEntry = (timeEntry) => {
+  return async (dispatch) => {
+    const deleteTimeEntryHelper = async () => {
+      const resp = await fetch(
+        `https://api.productive.io/api/v2/time_entries/${timeEntry}`,
+        {
+          method: "DELETE",
+          headers: {
+            "X-Auth-Token": "c435af49-f9c3-43a6-89d6-45aa27de9559",
+            "Content-Type": "application/vnd.api+json",
+            "X-Organization-Id": "20463",
+          },
+        }
+      );
+      if (!resp.ok) {
+        throw new Error("Something went wrong");
+      }
+      const data = await resp.json();
+      return data;
+    };
+
+    try {
+      const deleteTimeEntryResponse = await deleteTimeEntryHelper();
+      dispatch(todoActions.deleteTime(deleteTimeEntryResponse));
     } catch (error) {
       console.log("Some error");
     }
