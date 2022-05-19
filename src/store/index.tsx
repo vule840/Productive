@@ -1,8 +1,8 @@
 import { configureStore } from "@reduxjs/toolkit";
-import todoSlice from "./TodoSlice";
+import timeEntriesSlice from "./TimeEntriesSlice";
 
 const store = configureStore({
-  reducer: { todo: todoSlice.reducer },
+  reducer: { timeEntry: timeEntriesSlice.reducer },
 });
 
 export default store;

@@ -1,19 +1,30 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const todoSlice = createSlice({
-  name: "todo",
-  initialState: { comments: [], todos: [] },
+export const getCurrentDate = () => {
+  let current = new Date();
+  let cDate =
+    current.getFullYear() +
+    "-0" +
+    (current.getMonth() + 1) +
+    "-" +
+    current.getDate();
+
+  let dateTime = cDate;
+  return dateTime;
+};
+
+const timeEntrySlice = createSlice({
+  name: "timeEntry",
+  initialState: { timeEntriesData: [] },
   reducers: {
-    addTodo(state) {},
-    removeTodo(state) {},
-    addComments: (state, action) => {
-      state.comments = action.payload;
+    getTime: (state, action) => {
+      state.timeEntriesData = action.payload;
     },
     postTime: (state, action) => {
-      state.comments = action.payload;
+      state.timeEntriesData = action.payload;
     },
     deleteTime: (state, action) => {
-      state.comments = action.payload;
+      state.timeEntriesData = action.payload;
     },
   },
 });
@@ -62,8 +73,7 @@ export const getData = () => {
 
     const fetchTimeEntries = async () => {
       const resp = await fetch(
-        "https://api.productive.io/api/v2/time_entries?filter[person_id]=" +
-          getOrganizationID,
+        `https://api.productive.io/api/v2/time_entries?filter[person_id]=${getOrganizationID}`,
         {
           method: "GET",
           headers: {
@@ -78,22 +88,6 @@ export const getData = () => {
       }
       const data = await resp.json();
 
-      const getCurrentDate = () => {
-        let current = new Date();
-        let cDate =
-          current.getFullYear() +
-          "-0" +
-          (current.getMonth() + 1) +
-          "-" +
-          current.getDate();
-
-        let dateTime = cDate;
-        return dateTime;
-      };
-      // console.log(
-      //   data.data.filter((z: any) => z.attributes.date === getCurrentDate())
-      // );
-      // console.log(getCurrentDate());
       return data.data.filter(
         (z: any) => z.attributes.date === getCurrentDate()
       );
@@ -120,16 +114,16 @@ export const getData = () => {
       const getPeopleModel = await fetchOrganizationPeopleID();
       console.log(getPeopleModel);
       const getTimeEntries = await fetchTimeEntries();
-      console.table(getTimeEntries);
+      console.log(getTimeEntries);
       const getServices = await fetchServices();
-      console.table(getServices);
+      console.log(getServices);
       const allResults = await Promise.all([
         getPeopleModel,
         getTimeEntries,
         getServices,
       ]);
 
-      dispatch(todoActions.addComments(allResults));
+      dispatch(timeActions.getTime(allResults));
     } catch (error) {
       //console.log("Some error");
     }
@@ -160,7 +154,7 @@ export const postTimeEntry = (comment) => {
 
     try {
       const getResponseTimeEntry = await postTimeEntryConstruction();
-      dispatch(todoActions.postTime(getResponseTimeEntry));
+      dispatch(timeActions.postTime(getResponseTimeEntry));
     } catch (error) {
       console.log("Some error");
     }
@@ -190,13 +184,13 @@ export const deleteTimeEntry = (timeEntry) => {
 
     try {
       const deleteTimeEntryResponse = await deleteTimeEntryHelper();
-      dispatch(todoActions.deleteTime(deleteTimeEntryResponse));
+      dispatch(timeActions.deleteTime(deleteTimeEntryResponse));
     } catch (error) {
       console.log("Some error");
     }
   };
 };
 
-export const todoActions = todoSlice.actions;
+export const timeActions = timeEntrySlice.actions;
 
-export default todoSlice;
+export default timeEntrySlice;

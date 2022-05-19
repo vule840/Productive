@@ -1,0 +1,15 @@
+.formTimeEntry{
+    background: $color-card-bg;
+    padding: 1rem;
+    margin: 1rem 0;
+    display: flex;
+    justify-content: space-around;
+    input {
+        background: transparent;
+        border: none;
+        color: $color-main-text;
+        &::placeholder {
+            color:$color-placeholder-text;
+        }
+    }
+}

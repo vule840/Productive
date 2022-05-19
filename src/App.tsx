@@ -1,10 +1,9 @@
-import TodoComp from "./components/TodoComp";
+import TimeEntriesComp from "./components/TimeEntriesComp";
 
 function App() {
   return (
     <div className="App">
-      <h2>testing</h2>
-      <TodoComp />
+      <TimeEntriesComp />
     </div>
   );
 }
