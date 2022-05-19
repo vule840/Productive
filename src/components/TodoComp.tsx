@@ -15,9 +15,10 @@ const TodoComp = () => {
     setRender(false);
     dispatch<any>(getData());
   }, [rerender, dispatch]);
-
+  // console.log(comments[0].data.id);
   const submitHandler = (e) => {
     e.preventDefault();
+
     const newComment = {
       data: {
         attributes: {
@@ -27,11 +28,11 @@ const TodoComp = () => {
           currency: null,
           currency_default: null,
           currency_normalized: null,
-          date: "2022-05-18",
+          date: "2022-05-19",
           created_at: null,
-          time: 40,
-          billable_time: 50,
-          note: "Im posting from postman to if it works",
+          time: Number(e.currentTarget.elements[0].value),
+          billable_time: Number(e.currentTarget.elements[1].value),
+          note: e.currentTarget.elements[2].value,
           approved: false,
           approved_at: null,
           rejected: false,
@@ -53,13 +54,13 @@ const TodoComp = () => {
           person: {
             data: {
               type: "people",
-              id: "270746",
+              id: comments[0].data.id,
             },
           },
           service: {
             data: {
               type: "services",
-              id: "1678923",
+              id: comments[2][0].id,
             },
           },
         },
@@ -91,25 +92,31 @@ const TodoComp = () => {
     <div>
       <h2>TodoComp</h2>
       <form onSubmit={submitHandler}>
-        {/* <input type="text" /> */}
+        <label htmlFor="time">Time</label>
+        <input id="time" type="number" />
+        <label htmlFor="time">Billable time</label>
+        <input id="billableTtime" type="number" />
+        <label htmlFor="note">Note</label>
+        <input id="note" type="text" />
+        {/* <input type="number" /> */}
         <input value="Submit todo" type="submit" />
       </form>
-      <div>
-        {/* {comments &&
-          comments.map((x) => {
+
+      {comments[1]
+        ? comments[1].map((x) => {
             return (
-              <table>
-                <tr key={x.id}>
-                  <td>{x.attributes.note}</td>
-                  <td>{x.attributes.time}</td>
-                  <td>{x.attributes.billable_time}</td>
-                  <td onClick={(e) => deleteTimeEntryHandler(e, x)}>X</td>
-                </tr>
-              </table>
+              <tr key={x.id}>
+                <td>{x.id}</td>
+                <td>{x.attributes.note}</td>
+                <td>{x.attributes.time}</td>
+                <td>{x.attributes.billable_time}</td>
+                <td onClick={(e) => deleteTimeEntryHandler(e, x)}>X</td>
+              </tr>
             );
-          })} */}
-        {comments && JSON.stringify(comments)}
-      </div>
+          })
+        : "Pending"}
+
+      {/* {comments && JSON.stringify(comments[1])} */}
 
       {/* {tasks ? Object.values(tasks).map((z: any) => <p>{z.text}</p>) : ""} */}
     </div>

@@ -120,11 +120,16 @@ export const getData = () => {
       const getPeopleModel = await fetchOrganizationPeopleID();
       console.log(getPeopleModel);
       const getTimeEntries = await fetchTimeEntries();
-      console.log(getTimeEntries);
+      console.table(getTimeEntries);
       const getServices = await fetchServices();
-      console.log(getServices);
-      // const allResults = await Promise.all([fsociety, ecorp]);
-      dispatch(todoActions.addComments(getTimeEntries));
+      console.table(getServices);
+      const allResults = await Promise.all([
+        getPeopleModel,
+        getTimeEntries,
+        getServices,
+      ]);
+
+      dispatch(todoActions.addComments(allResults));
     } catch (error) {
       //console.log("Some error");
     }
