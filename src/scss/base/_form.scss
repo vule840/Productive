@@ -11,5 +11,18 @@
         &::placeholder {
             color:$color-placeholder-text;
         }
+        &[type="submit"] {
+            background: $color-indigo-light;
+            border: none;
+            color: $color-ui-button-primary-text;
+            padding: 8px 16px;
+            border-radius: 4px;
+            &:hover {
+
+                border: none;
+                color: $color-main-text;
+                cursor: pointer;
+            }
+        }
     }
 }

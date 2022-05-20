@@ -54,7 +54,7 @@ export const getData = () => {
 
     const fetchOrganizationPeopleID = async () => {
       const resp = await fetch(
-        "https://api.productive.io/api/v2/people/" + getOrganizationID,
+        `https://api.productive.io/api/v2/people/${getOrganizationID}`,
         {
           method: "GET",
           headers: {
@@ -67,8 +67,18 @@ export const getData = () => {
       if (!resp.ok) {
         throw new Error("Something went wrong");
       }
+
       const data = await resp.json();
-      return data;
+
+      const peopleData = {
+        name:
+          data.data.attributes.first_name +
+          " " +
+          data.data.attributes.last_name,
+        company: data.included[0].attributes.name,
+        peopleID: data.data.id,
+      };
+      return peopleData;
     };
 
     const fetchTimeEntries = async () => {
@@ -87,11 +97,61 @@ export const getData = () => {
         throw new Error("Something went wrong");
       }
       const data = await resp.json();
+      const getServices = await fetchServices();
 
-      return data.data.filter(
-        (z: any) => z.attributes.date === getCurrentDate()
-      );
+      const filterDateTimeEntries = data.data
+        .filter((z: any) => z.attributes.date === getCurrentDate())
+        .map((x) => ({
+          time: x.attributes.time,
+          billable_time: x.attributes.billable_time,
+          note: x.attributes.note,
+          date: x.attributes.date,
+          id: x.id,
+          serviceID: x.relationships.service.data.id,
+        }));
+
+      let filterHelper = [] as any;
+
+      getServices.services.filter(function (newData) {
+        return filterDateTimeEntries.filter(function (oldData) {
+          if (newData.id === oldData.serviceID) {
+            filterHelper.push({
+              id: oldData.id,
+              name: newData.name,
+              serviceID: oldData.serviceID,
+            });
+          }
+        });
+      });
+
+      let filterHelper2 = [] as any;
+
+      filterDateTimeEntries.filter(function (newData) {
+        return filterHelper.filter(function (oldData) {
+          if (newData.id === oldData.id) {
+            filterHelper2.push({
+              id: newData.entryID,
+              name: oldData.name,
+              billable_time: newData.billable_time,
+              note: newData.note,
+              time: newData.time,
+              date: newData.date,
+              entryID: oldData.id,
+            });
+          }
+        });
+      });
+
+      const getPeopleModel = await fetchOrganizationPeopleID();
+
+      const timeEntriesObj = {
+        serviceTimeEntriesData: filterHelper2,
+        people: getPeopleModel,
+      };
+
+      return timeEntriesObj;
     };
+
     const fetchServices = async () => {
       const resp = await fetch("https://api.productive.io/api/v2/services/", {
         method: "GET",
@@ -105,25 +165,19 @@ export const getData = () => {
         throw new Error("Something went wrong");
       }
       const data = await resp.json();
-      const filterFrontEnd = data.data.filter(
-        (x) => x.attributes.name === "Frontend development"
-      );
-      return filterFrontEnd;
+      const filterServices = data.data.map((x) => ({
+        name: x.attributes.name,
+        id: x.id,
+      }));
+      const services = {
+        services: filterServices,
+      };
+      return services;
     };
     try {
-      const getPeopleModel = await fetchOrganizationPeopleID();
-      console.log(getPeopleModel);
       const getTimeEntries = await fetchTimeEntries();
-      console.log(getTimeEntries);
-      const getServices = await fetchServices();
-      console.log(getServices);
-      const allResults = await Promise.all([
-        getPeopleModel,
-        getTimeEntries,
-        getServices,
-      ]);
 
-      dispatch(timeActions.getTime(allResults));
+      dispatch(timeActions.getTime(getTimeEntries));
     } catch (error) {
       //console.log("Some error");
     }
@@ -186,7 +240,7 @@ export const deleteTimeEntry = (timeEntry) => {
       const deleteTimeEntryResponse = await deleteTimeEntryHelper();
       dispatch(timeActions.deleteTime(deleteTimeEntryResponse));
     } catch (error) {
-      console.log("Some error");
+      // console.log(error);
     }
   };
 };
